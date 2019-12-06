@@ -1,0 +1,262 @@
+global proc createCatToolWindow() {
+    if((`window -ex CatToolWindow`) == true) deleteUI CatToolWindow;
+    string $win = `window CatToolWindow`;
+    scrollLayout;
+    columnLayout;
+    
+    rowLayout -nc 2;
+    text -l "履帯パーツ開始ジョイント";
+    textField RITAI_FIELD;
+    setParent ..;
+    
+    rowLayout -nc 2;
+    text -l "終了ジョイント（自動で追加されます）";
+    textField RITAI_LAST_FIELD;
+    setParent ..;
+    
+    rowLayout -nc 2;
+    text -l "パスのカーブ";
+    textField PATHCURVE_FIELD;
+    setParent ..;
+    
+    string $command = "getLoopCountFromTextfield";
+    button -w 120 -l "履帯を繰り返す回数を取得" -c $command;
+    
+    button -w 120 -l "履帯をコピー・並べる" -c "duplicateCaterpillerFromUI";
+    
+    button -l "スプラインIK追加" -c "attachIKsprineHandleToCurve";
+    
+    button -l "モーションパスのアタッチ" -c "attachPathAnimationToCurve";
+    
+    separator;
+    
+    rowLayout -nc 3;
+    text -l "転輪のピボットとなるオブジェクト";
+    textField WHEEL1_FIELD;
+    button -l "選択中のオブジェクトをセット" -c "setSelectedObjectToField(\"wheel1_field\")";
+    setParent ..;
+    
+    button -l "近い点を出力" -c "getTerrainPointUnderWheel";
+    
+    button -l "高さを合わせる" -c "setWheelHeightOverTerrain";
+    setParent ..;
+    
+    showWindow $win;
+}
+
+// 終了ジョイントテキストフィールドを更新
+proc string setLastJointField(string $str){
+    return `textField -e -tx $str RITAI_LAST_FIELD`;
+}
+// 終了ジョイントテキストフィールドの内容を取得
+proc string getLastJointField(){
+    return `textField -q -tx RITAI_LAST_FIELD`;
+}
+proc string getFirstJointField(){
+    return `textField -q -tx RITAI_FIELD`;
+}
+
+
+// 選択中のオブジェクトをテキストフィールドにセット
+proc setSelectedObjectToField(string $field){
+    $sel = `ls -sl`;
+    switch($field){
+        case "wheel1_field":
+            textField -e -tx $sel WHEEL1_FIELD;
+            break;    
+    }
+}
+
+
+// 各テキストフィールドから指定されたオブジェクト名を読み取り、繰り返すべき履帯の数を返す
+proc int getLoopCountFromTextfield(){
+    string $t = `textField -q -tx RITAI_FIELD`;
+    string $c = `textField -q -tx PATHCURVE_FIELD`;
+    return getLoopCount($t, $c, 0.01);
+}
+
+// 履帯のオブジェクトとパスのカーブ、履帯間のオフセットを与えると、履帯のパーツを何個並べればよいか返す
+proc int getLoopCount(string $track, string $curve, float $offset){
+    float $bbox[] = `exactWorldBoundingBox $track`;
+    // X方向と仮定してX方向のサイズを取得
+    float $xLen = $bbox[3] - $bbox[0] + $offset;
+    // カーブの長さを取得
+    float $curveLen = `arclen $curve`;
+    int $res = ($curveLen / $xLen) + 0; // TODO: 1個多くしたいときは+1
+    print $res;
+    return $res;
+}
+
+// テキストフィールドに指定された履帯とカーブから、カーブを覆える数だけ履帯を複製し並べる
+proc duplicateCaterpillerFromUI ( ){
+    float $num = getLoopCountFromTextfield();   
+    string $track = `textField -q -tx RITAI_FIELD`;
+    float $offset = 0.01;
+    duplicateCaterpiller($track, $num, $offset);
+}
+
+// 履帯を指定数コピーする
+global proc duplicateCaterpiller(string $track, int $num, float $offset){
+    float $bbox[] = `exactWorldBoundingBox $track`;
+    float $xlen = $bbox[3] - $bbox[0] + $offset;
+    
+    int $i;
+    select -r $track;
+    string $parent[];
+    appendStringArray($parent, {$track}, 1); // 親配列の初期値は$track
+    for ($i = 0; $i < $num; $i++){
+        $_childs = `duplicate -rr`;
+        move -r -os -wd $xlen 0 0;
+        select -add $parent;
+        parent;
+        $parent = $_childs;
+    }
+    setLastJointField($parent[0]);
+}
+
+// 開始ジョイントと最後のジョイントをカーブ対してスプラインIKハンドルを追加
+global proc attachIKsprineHandleToCurve(){
+    select -r `getFirstJointField` ;
+    select -add `getLastJointField` ;
+    select -add `textField -q -tx PATHCURVE_FIELD` ;
+    ikHandle -sol ikSplineSolver -ccv false -roc false -pcv false;
+}
+
+// 開始ジョイントをカーブに対してモーションパスとしてアタッチ
+global proc attachPathAnimationToCurve(){
+    select -r `getFirstJointField` ;
+    select -add `textField -q -tx PATHCURVE_FIELD` ;
+    pathAnimation -fractionMode true -follow true -followAxis x -upAxis y -worldUpType "vector" -worldUpVector 0 1 0 -inverseUp false -inverseFront false -bank false -startTimeU `playbackOptions -query -minTime` -endTimeU  `playbackOptions -query -maxTime`;
+}
+
+// 指定カーブのCVのうち、高さが平均より下のCVのインデックス一覧を返す
+proc float[] getUnderCurvePoints(){
+    $c = "nurbsCircle1";
+    select -r $c;
+    int $spans = getAttr($c + ".spans");
+    int $i;
+    float $sum = 0;
+    float $heights[]; // 各CVのY座標値
+    for($i = 0;$i < $spans;$i++){
+        float $_pos[] = pointPosition($c + ".cv[" + $i + "]");
+        $sum += $_pos[1]; // Y座標
+        $heights[$i] = $_pos[1];
+    }
+    float $avg = ($sum / $spans);
+    float $results[];
+    int $j = 0;
+    for($i = 0;$i < $spans; $i++){
+        if($heights[$i] < $avg){
+            $results[$j] = $i;
+            $j++;
+        }
+    }
+    return $results;
+}
+
+
+// 転輪直下（転輪が参照すべき）地形の点を返す
+proc string getTerrainPointUnderWheel(){
+    $terrain = "terrain";
+    $wheelPivot = `textField -q -tx WHEEL1_FIELD`;
+    float $px = `getAttr ($wheelPivot + ".tx")`;
+    float $pz = `getAttr ($wheelPivot + ".tz")`;
+    vector $pvec = <<$px, 0, $pz>>;
+    string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
+    string $resultVertex; // 最も近い点
+    float $minLen = -1; // 現在の最近の距離
+    for($vtx in `filterExpand -sm 31 $_vertexes`){
+        float $_coordinates[] = pointPosition($vtx);
+        float $tX = $_coordinates[0];
+        float $tZ = $_coordinates[2];
+        vector $tvec = <<$tX, 0, $tZ>>;
+        float $len = mag($pvec - $tvec); // 二点間の距離
+        if($len < $minLen || $minLen < 0){
+            $minLen = $len;
+            $resultVertex = $vtx;
+        }
+    }
+    print ($resultVertex + "\n");
+    select $resultVertex;
+    return $resultVertex;
+}
+// 転輪を直下の地面より高い位置に
+proc setWheelHeightOverTerrain(){
+    $terrain = "terrain";
+    $radius = 0.76315;
+    $vtx = getTerrainPointUnderWheel();
+    $moveIK = "ikHandle2";
+    $_vtxPos = pointPosition($vtx);
+    float $vy = $_vtxPos[1];
+    print $vy;
+    print "\n";
+    float $py = $vy + $radius;
+    print $py;
+    print "\n";
+    float $diffY = $py - `getAttr($moveIK + ".ty")`;
+    print $diffY;
+    print "\n";
+    select -r $moveIK;
+    move -r 0 $diffY 0;
+    
+}
+
+// ある点の直下にある地形の頂点を返すユーティリティ
+proc string getTerrainPointUnder(string $pivot, string $terrain){
+    float $px = `getAttr ($pivot + ".tx")`;
+    float $pz = `getAttr ($pivot + ".tz")`;
+    vector $pvec = <<$px, 0, $pz>>;
+    string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
+    string $resultVertex; // 最も近い点
+    float $minLen = -1; // 現在の最近の距離
+    for($vtx in `filterExpand -sm 31 $_vertexes`){
+        float $_coordinates[] = pointPosition($vtx);
+        float $tX = $_coordinates[0];
+        float $tZ = $_coordinates[2];
+        vector $tvec = <<$tX, 0, $tZ>>;
+        float $len = mag($pvec - $tvec); // 二点間の距離
+        if($len < $minLen || $minLen < 0){
+            $minLen = $len;
+            $resultVertex = $vtx;
+        }
+    }
+    return $resultVertex;
+}
+
+// ある円を地形に沿うように配置するユーティリティ
+proc setCylinderHeightOverTerrain(string $cylinder, float $radius, string $terrain){
+    $vtx = getTerrainPointUnder($cylinder, $terrain);
+    $_vtxPos = pointPosition($vtx);
+    float $vy = $_vtxPos[1];
+    float $py = $vy + $radius;
+    float $diffY = $py - `getAttr($cylinder + ".ty")`;
+    select -r $cylinder;
+    move -r 0 $diffY 0;
+}
+// 円柱を地形に合わせて配置できるかのテスト
+// 凸凹が円柱の半径よりも深いとき、直下の点だけでなく周りの点にも気を付ける必要がありそうだが、とりあえず戦車には利用しないので放置
+global proc testSetCylinders(int $n, float $radius, string  $terrain){
+    for($i = 1; $i <= $n; $i++){
+        string $target = "testCylinder" + $i;
+        print ($target + "move\n");
+        setCylinderHeightOverTerrain($target, $radius, $terrain);
+    }
+}
+
+// 地形のプレーンの座標を程よくデコボコにする
+proc createTerrainRoughness(float $offset){
+    $offset = 0.5;
+    $terrain = "terrain";
+    string $vtx;
+    string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
+    for($vtx in `filterExpand -sm 31 $_vertexes`){
+        float $_coordinates[] = pointPosition($vtx);
+        float $vX = $_coordinates[0];
+        float $vZ = $_coordinates[2];
+        float $randY = rand(-$offset, $offset);
+        move $vX $randY $vZ $vtx;
+        
+    }
+}
+
+createCatToolWindow;
