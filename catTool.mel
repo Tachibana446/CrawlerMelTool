@@ -1,3 +1,5 @@
+// Shift JIS
+
 global proc createCatToolWindow() {
     if((`window -ex CatToolWindow`) == true) deleteUI CatToolWindow;
     string $win = `window CatToolWindow`;
@@ -257,6 +259,24 @@ proc createTerrainRoughness(float $offset){
         move $vX $randY $vZ $vtx;
         
     }
+}
+
+
+// あるシリンダーを角度を変えることなくシリンダー端をワールド座標で一定の高さに配置したい時、端のX座標を出す。
+// y: ピボットからの距離Y（の絶対値)
+// angle: degree. 0~360
+// return: ピボットからの距離X（符号付き）
+proc float calcSuspensionX(float $y, float $angle){
+    $angle = $angle % 360;
+    $l = $y / sind($angle);
+    if($angle >= 180){
+       $l = -$l; 
+    }
+    float $x = $l * cosd($angle);
+    if(90 <= $angle && $angle <= 270){
+        $x = -$x;
+    }
+    return $x;
 }
 
 createCatToolWindow;
