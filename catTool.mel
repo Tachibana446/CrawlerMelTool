@@ -7,91 +7,93 @@ global proc createCatToolWindow() {
     columnLayout -adj true;
     
     rowLayout -nc 2;
-    text -l "履帯パーツ開始ジョイント";
+    text -l "???уp?[?c?J?n?W???C???g";
     textField RITAI_FIELD;
     setParent ..;
     
     rowLayout -nc 2;
-    text -l "終了ジョイント（自動で追加されます）";
+    text -l "?I???W???C???g?i???????????????j";
     textField RITAI_LAST_FIELD;
     setParent ..;
     
     rowLayout -nc 2;
-    text -l "パスのカーブ";
+    text -l "?p?X??J?[?u";
     textField -tx "trackPathCurve" PATHCURVE_FIELD;
     setParent ..;
     
     rowLayout -nc 3;
-    text -l "地形";
+    text -l "?n?`";
     textField TERRAIN_FIELD;
     button -l "set" -c "setSelectedObjectToField(\"terrain_field\")";
     setParent ..;
     
     gridLayout -nc 3 -cw 150;
     
-    button -w 120 -l "履帯を繰り返す回数を取得" -c "getLoopCountFromTextfield";
-    button -w 120 -l "履帯をコピー・並べる" -c "duplicateCaterpillerFromUI";
-    button -l "スプラインIK追加" -c "attachIKsprineHandleToCurve";
-    button -l "モーションパスのアタッチ" -c "attachPathAnimationToCurve";
-    button -l "地形を凸凹に" -c "createTerrainRoughness(0.5)";
+    button -w 120 -l "???т??J????????擾" -c "getLoopCountFromTextfield";
+    button -w 120 -l "???т??R?s?[?E?????" -c "duplicateCaterpillerFromUI";
+    checkBox -l "X????" TRACK_LOOP_DIRECTION_CHECKBOX;
+    button -l "?X?v???C??IK???" -c "attachIKsprineHandleToCurve";
+    button -l "???[?V?????p?X??A?^?b?`" -c "attachPathAnimationToCurve";
+    button -l "?n?`??????" -c "createTerrainRoughness(0.5)";
     setParent ..;
     
     separator;
     
     rowLayout -nc 3;
-    text -l "転輪のピボットとなるオブジェクト";
+    text -l "?]???s?{?b?g????I?u?W?F?N?g";
     textField WHEEL1_FIELD;
-    button -l "選択中のオブジェクトをセット" -c "setSelectedObjectToField(\"wheel1_field\")";
+    button -l "?I???I?u?W?F?N?g???Z?b?g" -c "setSelectedObjectToField(\"wheel1_field\")";
     setParent ..;
     
     rowLayout -nc 2;
-    text -l "半径";
+    text -l "???a";
     textField -tx "3" WHEEL_RADIUS_FIELD; 
     setParent ..;
     rowLayout -nc 2;
     
-    text -l "駆動輪の半径";
+    text -l "???????a";
     textField -tx "0.666" DRIVE_WHEEL_RADIUS_FIELD;
     setParent ..;
     
     
     rowLayout -nc 3;
-    text -l "転輪たち";
+    text -l "movableWheels";
     textField WHEELS_FIELD;
-    button -l "選択中のオブジェクトをセット" -c "setSelectedObjectToField(\"WHEELS_FIELD\")";
+    button -l "?I???I?u?W?F?N?g???Z?b?g" -c "setSelectedObjectToField(\"WHEELS_FIELD\")";
     setParent ..;
     
     rowLayout -nc 3;
-    text -l "駆動輪たち";
+    text -l "???????";
     textField DRIVE_WHEELS_FIELD;
-    button -l "選択中のオブジェクトをセット" -c "setSelectedObjectToField(\"DRIVE_WHEELS_FIELD\")";
+    button -l "?I???I?u?W?F?N?g???Z?b?g" -c "setSelectedObjectToField(\"DRIVE_WHEELS_FIELD\")";
     setParent ..;
     rowLayout -nc 3;
-    text -l "固定輪たち";
+    text -l "???????";
     textField FIXED_WHEELS_FIELD;
-    button -l "選択中のオブジェクトをセット" -c "setSelectedObjectToField(\"FIXED_WHEELS_FIELD\")";
+    button -l "?I???I?u?W?F?N?g???Z?b?g" -c "setSelectedObjectToField(\"FIXED_WHEELS_FIELD\")";
     setParent ..;
     
-    button -l "近い点を出力" -c "getTerrainPointUnderWheel";
+    button -l "????_???o??" -c "getTerrainPointUnderWheel";
     
-    button -l "高さを合わせる" -c "landWheelOnGround";
+    button -l "????????????" -c "landWheelOnGround";
     
-    button -l "いい感じにする" -c "adjustIkOnTerrain";
+    button -l "?????????????" -c "adjustIkOnTerrain";
     
-    button -l "まとめていい感じにする" -c "adjustMovableWheelsOnTerrain";
-    button -l "転輪にパスを沿わせる" -c "editPathCurveFromWheels";
-    button -l "カーブをいい感じにリビルドする" -c "rebuildPathCurve";
-    button -l "カーブと履帯を移動" -c "alignPathAndTrack";
+    button -l "adjust MovableWheels Height" -c "adjustMovableWheelsOnTerrain";
+    button -l "?]???p?X????????" -c "editPathCurveFromWheels";
+    button -l "?J?[?u??????????????r???h????" -c "rebuildPathCurve";
+    button -l "?J?[?u????т????" -c "alignPathAndTrack";
+    button -l "KeyWheels" -c "setKeyWheels";
     setParent ..;
            
     showWindow $win;
 }
 
-// 終了ジョイントテキストフィールドを更新
+// ?I???W???C???g?e?L?X?g?t?B?[???h???X?V
 proc string setLastJointField(string $str){
     return `textField -e -tx $str RITAI_LAST_FIELD`;
 }
-// 終了ジョイントテキストフィールドの内容を取得
+// ?I???W???C???g?e?L?X?g?t?B?[???h????e???擾
 proc string getLastJointField(){
     return `textField -q -tx RITAI_LAST_FIELD`;
 }
@@ -100,7 +102,7 @@ proc string getFirstJointField(){
 }
 
 
-// 選択中のオブジェクトをテキストフィールドにセット
+// ?I???I?u?W?F?N?g???e?L?X?g?t?B?[???h??Z?b?g
 proc setSelectedObjectToField(string $field){
     $sel = `ls -sl`;
     string $list[] = `ls -sl`;
@@ -126,7 +128,7 @@ proc setSelectedObjectToField(string $field){
     }
 }
 
-// テキストフィールドにカンマ区切りで記載されたオブジェクトを配列にして返す
+// ?e?L?X?g?t?B?[???h??J???}?????L??????I?u?W?F?N?g??z????????
 proc string[] getTextFieldObjects(string $text){
     string $array[];
     tokenize($text, ", ", $array);
@@ -139,37 +141,52 @@ proc string[] getTextFieldObjects(string $text){
     return $result;
 }
 
-// 各テキストフィールドから指定されたオブジェクト名を読み取り、繰り返すべき履帯の数を返す
+// ?e?e?L?X?g?t?B?[???h????w?????I?u?W?F?N?g????????A?J??????????т??????
 proc int getLoopCountFromTextfield(){
     string $t = `textField -q -tx RITAI_FIELD`;
     string $c = `textField -q -tx PATHCURVE_FIELD`;
-    return getLoopCount($t, $c, 0.01);
+    string $direction = "Z";
+    if(`checkBox -q -value TRACK_LOOP_DIRECTION_CHECKBOX`)
+        $direction = "X";
+    return getLoopCount($t, $c, $direction, 0.01);
 }
 
-// 履帯のオブジェクトとパスのカーブ、履帯間のオフセットを与えると、履帯のパーツを何個並べればよいか返す
-proc int getLoopCount(string $track, string $curve, float $offset){
+// ???т?I?u?W?F?N?g??p?X??J?[?u?A???ъ??I?t?Z?b?g??^?????A???т?p?[?c?????????????????
+proc int getLoopCount(string $track, string $curve, string $direction, float $offset){
     float $bbox[] = `exactWorldBoundingBox $track`;
-    // X方向と仮定してX方向のサイズを取得
-    float $xLen = $bbox[3] - $bbox[0] + $offset;
-    // カーブの長さを取得
+    // X????
+    float $len = abs($bbox[3] - $bbox[0]) + $offset;
+    if($direction == "Z")
+        $len = abs($bbox[5] - $bbox[2]) + $offset;
+    // ?J?[?u????????擾
     float $curveLen = `arclen $curve`;
-    int $res = ($curveLen / $xLen) + 0; // TODO: 1個多くしたいときは+1
+    int $res = ($curveLen / $len) + 0; // TODO: 1????????????????+1
     print $res;
     return $res;
 }
 
-// テキストフィールドに指定された履帯とカーブから、カーブを覆える数だけ履帯を複製し並べる
+// ?e?L?X?g?t?B?[???h??w???????т?J?[?u????A?J?[?u????鐔???????т?????????
 proc duplicateCaterpillerFromUI ( ){
-    float $num = getLoopCountFromTextfield();   
+    float $num = getLoopCountFromTextfield(); 
+    string $direction = "Z";
+    if(`checkBox -q -value TRACK_LOOP_DIRECTION_CHECKBOX`)
+        $direction = "X";
     string $track = `textField -q -tx RITAI_FIELD`;
     float $offset = 0.001;
-    duplicateCaterpiller($track, $num, $offset);
+    duplicateCaterpiller($track, $num, $offset, $direction);
 }
 
-// 履帯を指定数コピーする
-global proc duplicateCaterpiller(string $track, int $num, float $offset){
+// ???т??w???R?s?[????
+global proc duplicateCaterpiller(string $track, int $num, float $offset, string $direction){
     float $bbox[] = `xform -q -bb -ws $track`;
-    float $xlen = abs($bbox[3] - $bbox[0]) + $offset;
+    float $len = 0;
+    if($direction == "X") 
+        $len = abs($bbox[3] - $bbox[0]) + $offset;
+    else if($direction == "Z")
+        $len = abs($bbox[5] - $bbox[2]) + $offset;
+    else
+        $len = abs($bbox[4] - $bbox[1]) + $offset;
+
     print ($bbox);
     print ("\n");
     print($offset + "\n");
@@ -177,10 +194,15 @@ global proc duplicateCaterpiller(string $track, int $num, float $offset){
     int $i;
     select -r $track;
     string $parent[];
-    appendStringArray($parent, {$track}, 1); // 親配列の初期値は$track
+    appendStringArray($parent, {$track}, 1); // ?e?z???????l??$track
     for ($i = 0; $i < $num; $i++){
         $_childs = `duplicate -rr`;
-        move -r -os -wd -x $xlen;
+        if($direction == "X")
+            move -r -os -wd -x $len;
+        else if($direction == "Z")
+            move -r -os -wd -z $len;
+        else
+            move -r -os -wd -y $len;
         select -add $parent;
         parent;
         $parent = $_childs;
@@ -188,7 +210,7 @@ global proc duplicateCaterpiller(string $track, int $num, float $offset){
     setLastJointField($parent[0]);
 }
 
-// 開始ジョイントと最後のジョイントをカーブ対してスプラインIKハンドルを追加
+// ?J?n?W???C???g?????W???C???g???J?[?u?????X?v???C??IK?n???h??????
 global proc attachIKsprineHandleToCurve(){
     select -r `getFirstJointField` ;
     select -add `getLastJointField` ;
@@ -196,24 +218,24 @@ global proc attachIKsprineHandleToCurve(){
     ikHandle -sol ikSplineSolver -ccv false -roc false -pcv false;
 }
 
-// 開始ジョイントをカーブに対してモーションパスとしてアタッチ
+// ?J?n?W???C???g???J?[?u????????[?V?????p?X?????A?^?b?`
 global proc attachPathAnimationToCurve(){
     select -r `getFirstJointField` ;
     select -add `textField -q -tx PATHCURVE_FIELD` ;
     pathAnimation -fractionMode true -follow true -followAxis x -upAxis y -worldUpType "vector" -worldUpVector 0 1 0 -inverseUp false -inverseFront false -bank false -startTimeU `playbackOptions -query -minTime` -endTimeU  `playbackOptions -query -maxTime`;
 }
 
-// 指定カーブのCVのうち、高さが平均より下のCVのインデックス一覧を返す
+// ?w??J?[?u??CV??????A??????????????CV??C???f?b?N?X??????
 proc float[] getUnderCurvePoints(){
     $c = "nurbsCircle1";
     select -r $c;
     int $spans = getAttr($c + ".spans");
     int $i;
     float $sum = 0;
-    float $heights[]; // 各CVのY座標値
+    float $heights[]; // ?eCV??Y???W?l
     for($i = 0;$i < $spans;$i++){
         float $_pos[] = pointPosition($c + ".cv[" + $i + "]");
-        $sum += $_pos[1]; // Y座標
+        $sum += $_pos[1]; // Y???W
         $heights[$i] = $_pos[1];
     }
     float $avg = ($sum / $spans);
@@ -229,7 +251,7 @@ proc float[] getUnderCurvePoints(){
 }
 
 
-// 転輪直下（転輪が参照すべき）地形の点を返す
+// ?]??????i?]????Q???????j?n?`??_????
 proc string getTerrainPointUnderWheel(){
     $terrain = "terrain";
     $wheelPivot = `textField -q -tx WHEEL1_FIELD`;
@@ -237,14 +259,14 @@ proc string getTerrainPointUnderWheel(){
     float $pz = `getAttr ($wheelPivot + ".tz")`;
     vector $pvec = <<$px, 0, $pz>>;
     string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
-    string $resultVertex; // 最も近い点
-    float $minLen = -1; // 現在の最近の距離
+    string $resultVertex; // ???????_
+    float $minLen = -1; // ???????????
     for($vtx in `filterExpand -sm 31 $_vertexes`){
         float $_coordinates[] = pointPosition($vtx);
         float $tX = $_coordinates[0];
         float $tZ = $_coordinates[2];
         vector $tvec = <<$tX, 0, $tZ>>;
-        float $len = mag($pvec - $tvec); // 二点間の距離
+        float $len = mag($pvec - $tvec); // ??_??????
         if($len < $minLen || $minLen < 0){
             $minLen = $len;
             $resultVertex = $vtx;
@@ -254,7 +276,7 @@ proc string getTerrainPointUnderWheel(){
     select $resultVertex;
     return $resultVertex;
 }
-// 転輪を直下の地面より高い位置に
+// ?]??????n????????u??
 proc setWheelHeightOverTerrain(){
     $terrain = "terrain";
     $radius = 0.76315;
@@ -275,20 +297,20 @@ proc setWheelHeightOverTerrain(){
     
 }
 
-// ある点の直下にある地形の頂点を返すユーティリティ
+// ????_??????????n?`????_???????[?e?B???e?B
 proc string getTerrainPointUnder(string $pivot, string $terrain){
     float $px = `getAttr ($pivot + ".tx")`;
     float $pz = `getAttr ($pivot + ".tz")`;
     vector $pvec = <<$px, 0, $pz>>;
     string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
-    string $resultVertex; // 最も近い点
-    float $minLen = -1; // 現在の最近の距離
+    string $resultVertex; // ???????_
+    float $minLen = -1; // ???????????
     for($vtx in `filterExpand -sm 31 $_vertexes`){
         float $_coordinates[] = pointPosition($vtx);
         float $tX = $_coordinates[0];
         float $tZ = $_coordinates[2];
         vector $tvec = <<$tX, 0, $tZ>>;
-        float $len = mag($pvec - $tvec); // 二点間の距離
+        float $len = mag($pvec - $tvec); // ??_??????
         if($len < $minLen || $minLen < 0){
             $minLen = $len;
             $resultVertex = $vtx;
@@ -297,7 +319,7 @@ proc string getTerrainPointUnder(string $pivot, string $terrain){
     return $resultVertex;
 }
 
-// ある点に最も近い地形の頂点を返すユーティリティ
+// ????_????????n?`????_???????[?e?B???e?B
 proc string getClosetTerrainPointUnder(string $pivot, string $terrain){
     $_pos = `xform -q -ws -t $pivot`;
     float $pX = $_pos[0];
@@ -305,15 +327,15 @@ proc string getClosetTerrainPointUnder(string $pivot, string $terrain){
     float $pZ = $_pos[2];
     vector $pVec = <<$pX, $pY, $pZ>>;
     string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
-    string $resultVertex; // 最も近い点
-    float $minLen = -1; // 現在の最近の距離
+    string $resultVertex; // ???????_
+    float $minLen = -1; // ???????????
     for($vtx in `filterExpand -sm 31 $_vertexes`){
         float $_coordinates[] = pointPosition($vtx);
         float $tY = $_coordinates[1];
         float $tX = $_coordinates[0];
         float $tZ = $_coordinates[2];
         vector $tvec = <<$tX, $tY, $tZ>>;
-        float $len = mag($pVec - $tvec); // 二点間の距離
+        float $len = mag($pVec - $tvec); // ??_??????
         if($len < $minLen || $minLen < 0){
             $minLen = $len;
             $resultVertex = $vtx;
@@ -322,7 +344,7 @@ proc string getClosetTerrainPointUnder(string $pivot, string $terrain){
     return $resultVertex;
 }
 
-// ある円を地形に沿うように配置するユーティリティ
+// ????~??n?`?????????z?u?????[?e?B???e?B
 proc setCylinderHeightOverTerrain(string $cylinder, float $radius, string $terrain){
     $vtx = getTerrainPointUnder($cylinder, $terrain);
     $_vtxPos = pointPosition($vtx);
@@ -332,8 +354,8 @@ proc setCylinderHeightOverTerrain(string $cylinder, float $radius, string $terra
     select -r $cylinder;
     move -r 0 $diffY 0;
 }
-// 円柱を地形に合わせて配置できるかのテスト
-// 凸凹が円柱の半径よりも深いとき、直下の点だけでなく周りの点にも気を付ける必要がありそうだが、とりあえず戦車には利用しないので放置
+// ?~????n?`???????z?u???????e?X?g
+// ??????~??????a?????[??????A??????_?????????????_????C??t????K?v?????????????A??????????????p??????????u
 global proc testSetCylinders(int $n, float $radius, string  $terrain){
     for($i = 1; $i <= $n; $i++){
         string $target = "testCylinder" + $i;
@@ -342,7 +364,7 @@ global proc testSetCylinders(int $n, float $radius, string  $terrain){
     }
 }
 
-// 地形のプレーンの座標を程よくデコボコにする
+// ?n?`??v???[??????W??????f?R?{?R?????
 proc createTerrainRoughness(float $offset){
     $offset = 0.5;
     $terrain = `textField -q -tx TERRAIN_FIELD`;
@@ -359,10 +381,10 @@ proc createTerrainRoughness(float $offset){
 }
 
 
-// あるシリンダーを角度を変えることなくシリンダー端をワールド座標で一定の高さに配置したい時、端のX座標を出す。
-// y: ピボットからの距離Y（の絶対値)
+// ????V?????_?[???p?x?????邱?????V?????_?[?[?????[???h???W??????????z?u?????????A?[??X???W???o???B
+// y: ?s?{?b?g????????Y?i???Βl)
 // angle: degree. 0~360
-// return: ピボットからの距離X（符号付き）
+// return: ?s?{?b?g????????X?i?????t???j
 proc float calcSuspensionX(float $y, float $angle){
     $angle = $angle % 360;
     $l = $y / sind($angle);
@@ -376,7 +398,7 @@ proc float calcSuspensionX(float $y, float $angle){
     return $x;
 }
 
-// あるオブジェクトのバウンディングボックスの下にある点を取得する
+// ????I?u?W?F?N?g??o?E???f?B???O?{?b?N?X????????_???擾????
 proc string[] getTerrainPointUnder(string $obj, string $terrain){
     $bb = exactWorldBoundingBox($obj);
     $minX = $bb[0];
@@ -384,7 +406,7 @@ proc string[] getTerrainPointUnder(string $obj, string $terrain){
     $minZ = $bb[2];
     $maxZ = $bb[5];
     string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
-    string $resultVertexes[]; // 直下の点
+    string $resultVertexes[]; // ??????_
     int $i = 0;
     for($vtx in `filterExpand -sm 31 $_vertexes`){
         float $_coordinates[] = pointPosition($vtx);
@@ -399,7 +421,8 @@ proc string[] getTerrainPointUnder(string $obj, string $terrain){
     return $resultVertexes;
 }
 
-// 車輪（円柱）を地面の上に設置させる YZ平面で見る
+// ???i?~???j??n??????u?????? YZ????????
+
 proc landWheelOnGround(){
     $wheelPivot = `textField -q -tx WHEEL1_FIELD`;
     $terrain = `textField -q -tx TERRAIN_FIELD`;
@@ -434,21 +457,21 @@ proc landWheelOnGround(){
     float $resultY = sqrt((pow($radius, 2) - pow($pZ - $minZ, 2)));
     print("" + $resultY + "\n");
     float $resultWorldY = ($minY + $resultY);
-    print("移動すべきワールドY：" + $resultWorldY + "\n");
+    print("???????????[???hY?F" + $resultWorldY + "\n");
     
     select -r $wheelPivot;
     move -ws -y $resultWorldY;
 }
 
 
-// YZ平面で見たときに円柱から一番近い地形の頂点を返す
+// YZ?????????????~???????????n?`????_????
 proc string getTerrainPointUnder(string $cylinder, string $terrain){
     $_pos = `xform -q -ws -t $cylinder`;
     float $pY = $_pos[1];
     float $pZ = $_pos[2];
     string $_vertexes[] = `polyListComponentConversion -tv $terrain`;
-    string $resultVertex; // 最も近い点
-    float $minLen = -1; // 現在の最近の距離
+    string $resultVertex; // ???????_
+    float $minLen = -1; // ???????????
     for($vtx in `filterExpand -sm 31 $_vertexes`){
         float $_coordinates[] = pointPosition($vtx);
         float $tY = $_coordinates[1];
@@ -462,7 +485,7 @@ proc string getTerrainPointUnder(string $cylinder, string $terrain){
     return $resultVertex;
 }
 
-// 少しずつIKハンドルをあげていって地面に設置するまで繰り返す
+// ????????IK?n???h???????????????n????u??????J????
 proc adjustIkOnTerrain(){
     $wheelPivot = `textField -q -tx WHEEL1_FIELD`;
     $terrain = `textField -q -tx TERRAIN_FIELD`;
@@ -471,7 +494,7 @@ proc adjustIkOnTerrain(){
     adjustIkOnTerrainRecursive(-1, 1, $radius, $wheelPivot, $terrain, 0);
 }
 
-// GUIで指定した転輪のIK（複数）をいっぺんに地形に合わせる
+// GUI??w?????]???IK?i?????j??????????n?`???????
 proc adjustMovableWheelsOnTerrain(){
     $_text = `textField -q -tx WHEELS_FIELD`;
     $wheels = getTextFieldObjects($_text);
@@ -483,69 +506,51 @@ proc adjustMovableWheelsOnTerrain(){
     }
 }
 
-// 少しずつIKハンドルをあげていって地面に設置するまで繰り返す
-/*
-proc adjustIkOnTerrain(){
-    $wheelPivot = `textField -q -tx WHEEL1_FIELD`;
-    $terrain = `textField -q -tx TERRAIN_FIELD`;
-    float $radius = `textField -q -tx WHEEL_RADIUS_FIELD`;
-    
-    $flag = true;
-    $i = 0;
-    $debug = false;
-    
-    while($flag){            
-        select -r $wheelPivot;
-        move -r -y 0.1;
+// ?e?]????u??L?[????
+proc setKeyWheels(){
+    $_text = `textField -q -tx WHEELS_FIELD`;
+    $wheels = getTextFieldObjects($_text);
 
-        $i += 1;
-        string $vtx = getClosetTerrainPointUnder($wheelPivot, $terrain);
-        $_pos = `xform -q -ws -t $wheelPivot`;
-        $_coordinates =  pointPosition($vtx);
-        $pvec = <<(float)$_pos[0], (float)$_pos[1],(float)$_pos[2]>>;
-        $tvec = << (float)$_coordinates[0],(float)$_coordinates[1], (float)$_coordinates[2] >>;
-        $len = mag($pvec - $tvec);
-        print ("" + $len + "\n");
-        if($len > $radius){
-            $flag = false;
-        }
-        if($debug == true || $i > 40){
-            break;
-        }
+    for($w in $wheels){
+        select -r $w;
+        if( `getAttr -k ($w + ".tx")`||`getAttr -channelBox ($w + ".tx")` )
+            setKeyframe ($w + ".tx");
+        if( `getAttr -k ($w + ".ty")`||`getAttr -channelBox ($w + ".ty")` )
+            setKeyframe ($w + ".ty");
+        if( `getAttr -k ($w + ".tz")`||`getAttr -channelBox ($w + ".tz")` )
+        setKeyframe ($w + ".tz");
     }
-    move -r -y -0.1;
 }
-*/
 
-// IKを上下させていいとこまでいかせる再帰関数
+// IK???????????????????????????A???
 proc adjustIkOnTerrainRecursive(int $isUp, float $dist, float $radius, string $Ik, string $terrain, int $count){
-    // 指定量上げ下げを行う
+    // ?w???グ???????s??
     select -r $Ik;
     if($isUp == true){
         move -r -y $dist;
     }else if($isUp == false){
         move -r -y (-$dist);
     }
-    if($dist < 0.001){ // 変位が小さくなってきたら終了
+    if($dist < 0.001){ // ?ψ??????????????????I??
         return;
     }
-    // 地面との最近接の点を取得
+    // ?n????????_???擾
     string $vtx = getClosetTerrainPointUnder($Ik, $terrain);
     $_pos = `xform -q -ws -t $Ik`;
     $_coordinates =  pointPosition($vtx);
     $pvec = <<(float)$_pos[0], (float)$_pos[1],(float)$_pos[2]>>;
     $tvec = << (float)$_coordinates[0],(float)$_coordinates[1], (float)$_coordinates[2] >>;
     $len = mag($pvec - $tvec);
-    // 地面と接触していた場合は上げ、そうでなければ下げる
+    // ?n????G???????????グ?A????????????????
     $nextIsUp = false;
     if($radius >= $len){
         $nextIsUp = true;
     }
-    // 反対向きに動かすときは今回よりも小さく動かしていく
+    // ??????????????????????????????????????????
     if($isUp != $nextIsUp){
         $dist *= 0.1;
     }
-    // あまりにもループしすぎているときは強制的に終了
+    // ??????????[?v???????????????????I??I??
     if($count > 100){
         return;
     }
@@ -553,15 +558,15 @@ proc adjustIkOnTerrainRecursive(int $isUp, float $dist, float $radius, string $I
     adjustIkOnTerrainRecursive($nextIsUp, $dist, $radius, $Ik, $terrain, $count);
 }
 
-// パスのカーブを転輪に添わせる
+// ?p?X??J?[?u??]???Y????
 proc editPathCurveFromWheels(){
    
     $ws = `textField -q -tx WHEELS_FIELD`;
     $dws = `textField -q -tx DRIVE_WHEELS_FIELD`;
     $fws = `textField -q -tx FIXED_WHEELS_FIELD`;
     
-    float $radius = `textField -q -tx WHEEL_RADIUS_FIELD`; // 転輪の半径
-    float $fwRadius = `textField -q -tx DRIVE_WHEEL_RADIUS_FIELD`; // 転輪の半径
+    float $radius = `textField -q -tx WHEEL_RADIUS_FIELD`; // ?]?????a
+    float $fwRadius = `textField -q -tx DRIVE_WHEEL_RADIUS_FIELD`; // ?]?????a
     
 
     vector $points[];    // CV
@@ -596,27 +601,27 @@ proc editPathCurveFromWheels(){
     
     print("\n_dwAdd\n"); // DEBUG
         
-    // 駆動輪は前後方向と上下方向にCVを用意させる
+    // ?????O??????????????CV??p???????
     vector $dw_f[], $dw_r[];
     $_dw = bubbleSortVector($_dw, "z");
-    $r45 = 0.70710678118 * $dwRadius; // 45度の点
-    $_dw_first = $_dw[0]; // 前の駆動輪
-    $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y - $dwRadius), $_dw_first.z >>; // 下
+    $r45 = 0.70710678118 * $dwRadius; // 45?x??_
+    $_dw_first = $_dw[0]; // ?O?????
+    $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y - $dwRadius), $_dw_first.z >>; // ??
     $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y - $r45), ($_dw_first.z - $r45) >>;
-    $dw_f[size($dw_f)] = << $_dw_first.x, $_dw_first.y, ($_dw_first.z - $dwRadius) >>; // 前
+    $dw_f[size($dw_f)] = << $_dw_first.x, $_dw_first.y, ($_dw_first.z - $dwRadius) >>; // ?O
     $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y + $r45), ($_dw_first.z - $r45) >>;
-    $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y + $dwRadius), $_dw_first.z >>; // 上
-    $_dw_last = $_dw[size($_dw) - 1]; // 後ろの駆動輪
-    $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y + $dwRadius), $_dw_last.z >>; // 上
+    $dw_f[size($dw_f)] = << $_dw_first.x, ($_dw_first.y + $dwRadius), $_dw_first.z >>; // ??
+    $_dw_last = $_dw[size($_dw) - 1]; // ???????
+    $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y + $dwRadius), $_dw_last.z >>; // ??
     $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y + $r45), ($_dw_last.z + $r45) >>; // 
-    $dw_r[size($dw_r)] = << $_dw_last.x, $_dw_last.y, ($_dw_last.z + $dwRadius) >>; // 後ろ
+    $dw_r[size($dw_r)] = << $_dw_last.x, $_dw_last.y, ($_dw_last.z + $dwRadius) >>; // ???
     $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y - $r45), ($_dw_last.z + $r45) >>; // 
-    $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y - $dwRadius), $_dw_last.z >>; // 下
+    $dw_r[size($dw_r)] = << $_dw_last.x, ($_dw_last.y - $dwRadius), $_dw_last.z >>; // ??
     $_dw = {};
     
     print("_dw  sorted\n");
     
-    // 上部固定輪
+    // ??????
     for($w in getTextFieldObjects($fws)){
         $_pos = `xform -q -ws -t $w`;
         float $x = $_pos[0];
@@ -643,7 +648,7 @@ proc editPathCurveFromWheels(){
     for($cv in $dw_r)
         $points[size($points)] = $cv;
     
-    // カーブに追加
+    // ?J?[?u????
     string $curve = "none";
     for($cv in $points){
         $x = $cv.x;
@@ -658,11 +663,11 @@ proc editPathCurveFromWheels(){
     rename $curve "trackPathCurve";
 }
 
-// 作成したパスのカーブを「閉じる」「リビルド」「拡大」する
+// ???????p?X??J?[?u???u?????v?u???r???h?v?u?g??v????
 proc rebuildPathCurve(){
     float $scale = 1.05;
     string $curve = `textField -q -tx PATHCURVE_FIELD`;
-    // Pivotを中央に
+    // Pivot?????
     float $curveCenter[] = getCurveCenter($curve);
     print "PIVOT\n";
     print $curveCenter;
@@ -679,7 +684,7 @@ proc rebuildPathCurve(){
     scale -r $scale ;
 }
 
-// 履帯のカーブのピボットを中央に戻し、履帯の先頭ジョイントをそこに合わせる
+// ???т?J?[?u??s?{?b?g????????A???т???W???C???g?????????????
 proc alignPathAndTrack(){
     string $curve = `textField -q -tx PATHCURVE_FIELD`;
     string $startJoint = `textField -q -tx RITAI_FIELD`;
@@ -693,7 +698,9 @@ proc alignPathAndTrack(){
     
 }
 
-// ベクター配列のソート
+
+
+// ?x?N?^?[?z???\?[?g
 proc vector[] bubbleSortVector(vector $v[], string $sortval){
     $changed = true;
     $s = size($v);
@@ -715,7 +722,7 @@ proc vector[] bubbleSortVector(vector $v[], string $sortval){
                     break;
             }
             if($bool){
-                // 入れ替え
+                // ??????
                 $v[$i] = $vb;
                 $v[$i + 1] = $va;
                 $changed = true;
@@ -725,7 +732,7 @@ proc vector[] bubbleSortVector(vector $v[], string $sortval){
     return $v;
 }
 
-// カーブの中心を取得
+// ?J?[?u????S???擾
 proc float[] getCurveCenter(string $curve){
     float $spans = getAttr($curve + ".spans");
     float $ax, $ay, $az;
@@ -741,7 +748,7 @@ proc float[] getCurveCenter(string $curve){
     return ({ $ax, $ay, $az });
 }
 
-// 配列のリバース
+// ?z?????o?[?X
 proc vector[] reverseArray(vector $v[]){
     vector $r[];
     int $size = size($v);
